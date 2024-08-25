@@ -11,6 +11,7 @@ import {
   setDoc,
   deleteDoc,
   getDoc,
+  QueryDocumentSnapshot
 } from 'firebase/firestore';
 
 const style = {
@@ -37,7 +38,7 @@ export default function Home() {
 
 interface InventoryItem {
   name: string;
-  quantity?: number; // Optional `quantity` field
+  quantity?: number; // Optional if it's not always present in your Firestore documents
   // Add other properties as needed
 }
 
@@ -52,15 +53,17 @@ const updateInventory = async () => {
   const snapshot = query(collection(firestore, 'inventory'));
   const docs = await getDocs(snapshot);
   const inventoryList: InventoryItem[] = [];
-  docs.forEach((doc) => {
+
+  docs.forEach((doc: QueryDocumentSnapshot) => {
     const data = doc.data();
     const item: InventoryItem = {
-      name: doc.id,
-      quantity: data.quantity ?? 0, // Handle missing `quantity` property
+      name: doc.id, // Explicitly access the document ID
+      quantity: data.quantity ?? 0, // Handle the possibility of missing `quantity`
       ...data,
     };
     inventoryList.push(item);
   });
+
   setInventory(inventoryList);
 };
 
