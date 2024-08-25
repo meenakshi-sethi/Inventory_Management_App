@@ -11,7 +11,8 @@ import {
   setDoc,
   deleteDoc,
   getDoc,
-  QueryDocumentSnapshot
+  QueryDocumentSnapshot,
+  QuerySnapshot, DocumentData 
 } from 'firebase/firestore';
 
 const style = {
@@ -50,14 +51,13 @@ const item: InventoryItem = { name: doc.id, ...data };
 
 
 const updateInventory = async () => {
-  const snapshot = query(collection(firestore, 'inventory'));
-  const docs = await getDocs(snapshot);
+  const snapshot: QuerySnapshot<DocumentData> = await getDocs(query(collection(firestore, 'inventory')));
   const inventoryList: InventoryItem[] = [];
 
-  docs.forEach((doc: QueryDocumentSnapshot) => {
+  snapshot.forEach((doc) => {
     const data = doc.data();
     const item: InventoryItem = {
-      name: doc.id, // Explicitly access the document ID
+      name: doc.id, // `doc.id` is valid here
       quantity: data.quantity ?? 0, // Handle the possibility of missing `quantity`
       ...data,
     };
