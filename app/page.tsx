@@ -32,13 +32,12 @@ const style = {
 
 interface InventoryItem {
   name: string;
-  quantity?: number; // Optional if it's not always present in your Firestore documents
-  // Add other properties as needed
+  quantity?: number;
 }
 
 export default function Home() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');  // State for search query
+  const [searchQuery, setSearchQuery] = useState('');  
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState('');
   const handleOpen = () => setOpen(true);
@@ -72,22 +71,33 @@ export default function Home() {
     }
 
     try {
-      console.log("Adding item:", item);
       const docRef = doc(collection(firestore, 'inventory'), item);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const { quantity } = docSnap.data() as InventoryItem;
-        console.log("Item exists. Updating quantity to:", quantity! + 1);
         await setDoc(docRef, { quantity: quantity! + 1 });
       } else {
-        console.log("Item does not exist. Setting quantity to 1.");
         await setDoc(docRef, { quantity: 1 });
       }
 
       await updateInventory();
     } catch (error) {
       console.error("Error adding item:", error);
+    }
+  };
+
+  const addQuantity = async (item: string) => {
+    try {
+      const docRef = doc(collection(firestore, 'inventory'), item);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const { quantity } = docSnap.data() as InventoryItem;
+        await setDoc(docRef, { quantity: quantity! + 1 });
+      }
+      await updateInventory();
+    } catch (error) {
+      console.error("Error increasing quantity:", error);
     }
   };
 
@@ -200,9 +210,14 @@ export default function Home() {
               <Typography variant={'h3'} color={'#333'} textAlign={'center'}>
                 Quantity: {quantity}
               </Typography>
-              <Button variant="contained" onClick={() => removeItem(name)}>
-                Remove
-              </Button>
+              <Stack direction="row" spacing={1}>
+                <Button variant="contained" onClick={() => addQuantity(name)}>
+                  +
+                </Button>
+                <Button variant="contained" onClick={() => removeItem(name)}>
+                  -
+                </Button>
+              </Stack>
             </Box>
           ))}
         </Stack>
