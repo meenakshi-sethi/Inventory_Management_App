@@ -5,15 +5,9 @@ import { Box, Stack, Typography, Button, Modal, TextField, IconButton, Grid } fr
 import { Add, Remove, Search, AddCircleOutline } from '@mui/icons-material';
 import { firestore } from '@/firebase';
 import {
-  collection,
-  doc,
-  getDocs,
-  query,
-  setDoc,
-  deleteDoc,
-  getDoc,
-  QueryDocumentSnapshot,
-  QuerySnapshot, DocumentData 
+  collection, doc, getDocs, query,
+  setDoc, deleteDoc, getDoc,
+  QueryDocumentSnapshot, QuerySnapshot, DocumentData 
 } from 'firebase/firestore';
 
 const modalStyle = {
@@ -143,6 +137,8 @@ export default function Home() {
       alignItems={'center'}
       bgcolor={'#e3f2fd'}
       p={3}
+      position="relative"
+      pb={10} // Ensure there's space at the bottom for the sticky button
     >
       <Box
         borderRadius={3}
@@ -233,7 +229,15 @@ export default function Home() {
         color="secondary"
         onClick={handleOpen}
         startIcon={<AddCircleOutline />}
-        sx={{ mt: 'auto', borderRadius: 3, boxShadow: 2 }}
+        sx={{
+          position: 'fixed',
+          bottom: 16,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          borderRadius: 3,
+          boxShadow: 2,
+          zIndex: 1000, // Ensure it stays on top of other elements
+        }}
       >
         Add New Item
       </Button>
