@@ -34,12 +34,15 @@ export default function Home() {
   const [itemName, setItemName] = useState('');
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  interface InventoryItem {
+
+interface InventoryItem {
   name: string;
-  quantity: number; // Assuming there's a quantity property
-  // Add other properties if necessary
+  quantity?: number; // Optional `quantity` field
+  // Add other properties as needed
 }
-const inventoryList: InventoryItem[] = [];
+
+const item: InventoryItem = { name: doc.id, ...data };
+
   useEffect(() => {
     updateInventory();
   }, []);
@@ -51,7 +54,11 @@ const updateInventory = async () => {
   const inventoryList: InventoryItem[] = [];
   docs.forEach((doc) => {
     const data = doc.data();
-    const item: InventoryItem = { name: doc.id, ...data };
+    const item: InventoryItem = {
+      name: doc.id,
+      quantity: data.quantity ?? 0, // Handle missing `quantity` property
+      ...data,
+    };
     inventoryList.push(item);
   });
   setInventory(inventoryList);
