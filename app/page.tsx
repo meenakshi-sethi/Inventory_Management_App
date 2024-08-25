@@ -38,6 +38,7 @@ interface InventoryItem {
 
 export default function Home() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');  // State for search query
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState('');
   const handleOpen = () => setOpen(true);
@@ -54,8 +55,8 @@ export default function Home() {
     snapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
       const data = doc.data();
       const item: InventoryItem = {
-        name: doc.id, // `doc.id` is valid here
-        quantity: data.quantity ?? 0, // Handle the possibility of missing `quantity`
+        name: doc.id,
+        quantity: data.quantity ?? 0,
         ...data,
       };
       inventoryList.push(item);
@@ -73,7 +74,6 @@ export default function Home() {
     try {
       console.log("Adding item:", item);
       const docRef = doc(collection(firestore, 'inventory'), item);
-      console.log("Here");
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -109,6 +109,10 @@ export default function Home() {
     }
   };
 
+  const filteredInventory = inventory.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Box
       width="100vw"
@@ -119,6 +123,15 @@ export default function Home() {
       alignItems={'center'}
       gap={2}
     >
+      <TextField
+        id="search"
+        label="Search Items"
+        variant="outlined"
+        fullWidth
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+
       <Modal
         open={open}
         onClose={handleClose}
@@ -151,9 +164,11 @@ export default function Home() {
           </Stack>
         </Box>
       </Modal>
+
       <Button variant="contained" onClick={handleOpen}>
         Add New Item
       </Button>
+
       <Box border={'1px solid #333'}>
         <Box
           width="800px"
@@ -168,7 +183,7 @@ export default function Home() {
           </Typography>
         </Box>
         <Stack width="800px" height="300px" spacing={2} overflow={'auto'}>
-          {inventory.map(({ name, quantity }) => (
+          {filteredInventory.map(({ name, quantity }) => (
             <Box
               key={name}
               width="100%"
