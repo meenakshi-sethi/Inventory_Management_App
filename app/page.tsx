@@ -162,53 +162,6 @@ export default function Home() {
         sx={{ mb: 3, maxWidth: '800px', bgcolor: 'white', borderRadius: 3, boxShadow: 2 }}
       />
 
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Add Item
-          </Typography>
-          <Stack width="100%" direction={'row'} spacing={2}>
-            <TextField
-              id="outlined-basic"
-              label="Item"
-              variant="outlined"
-              fullWidth
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-              sx={{ bgcolor: '#f7f9fc', borderRadius: 2 }}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                addItem(itemName);
-                setItemName('');
-                handleClose();
-              }}
-              startIcon={<AddCircleOutline />}
-              sx={{ borderRadius: 2 }}
-            >
-              Add
-            </Button>
-          </Stack>
-        </Box>
-      </Modal>
-
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={handleOpen}
-        startIcon={<AddCircleOutline />}
-        sx={{ mb: 3, borderRadius: 3, boxShadow: 2 }}
-      >
-        Add New Item
-      </Button>
-
       <Box
         borderRadius={3}
         p={3}
@@ -219,7 +172,7 @@ export default function Home() {
       >
         <Box
           width="100%"
-          height="100px"
+          height="60px"  // Reduced the height of the blue header
           bgcolor={'#1976d2'}
           display={'flex'}
           justifyContent={'center'}
@@ -228,7 +181,7 @@ export default function Home() {
           mb={3}
           boxShadow={2}
         >
-          <Typography variant={'h4'} color={'#ffffff'} textAlign={'center'}>
+          <Typography variant={'h5'} color={'#ffffff'} textAlign={'center'}>
             Inventory Items
           </Typography>
         </Box>
@@ -256,6 +209,16 @@ export default function Home() {
           ))}
         </Stack>
       </Box>
+
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={handleOpen}
+        startIcon={<AddCircleOutline />}
+        sx={{ mt: 3, borderRadius: 3, boxShadow: 2 }}
+      >
+        Add New Item
+      </Button>
     </Box>
   );
 }
