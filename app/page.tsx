@@ -34,24 +34,28 @@ export default function Home() {
   const [itemName, setItemName] = useState('');
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+  interface InventoryItem {
+  name: string;
+  quantity: number; // Assuming there's a quantity property
+  // Add other properties if necessary
+}
+const inventoryList: InventoryItem[] = [];
   useEffect(() => {
     updateInventory();
   }, []);
 
-  const updateInventory = async () => {
-    try {
-      const snapshot = query(collection(firestore, 'inventory'));
-      const docs = await getDocs(snapshot);
-      const inventoryList = [];
-      docs.forEach((doc) => {
-        inventoryList.push({ name: doc.id, ...doc.data() });
-      });
-      setInventory(inventoryList);
-    } catch (error) {
-      console.error("Failed to update inventory:", error);
-    }
-  };
+
+const updateInventory = async () => {
+  const snapshot = query(collection(firestore, 'inventory'));
+  const docs = await getDocs(snapshot);
+  const inventoryList: InventoryItem[] = [];
+  docs.forEach((doc) => {
+    const data = doc.data();
+    const item: InventoryItem = { name: doc.id, ...data };
+    inventoryList.push(item);
+  });
+  setInventory(inventoryList);
+};
 
   const addItem = async (item) => {
     if (!item.trim()) {

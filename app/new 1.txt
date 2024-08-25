@@ -1,0 +1,35 @@
+const updateInventory = async () => {
+  try {
+    const snapshot = query(collection(firestore, 'inventory'));
+    const docs = await getDocs(snapshot);
+    const inventoryList = [];
+    docs.forEach((doc) => {
+      inventoryList.push({ name: doc.id, ...doc.data() });
+    });
+    setInventory(inventoryList);
+  } catch (error) {
+    console.error("Failed to update inventory:", error.message);
+    if (error.code === 'unavailable') {
+      console.error("The client appears to be offline.");
+    }
+  }
+};
+
+const addItem = async (item) => {
+  if (!item.trim()) {
+    console.error("Item name cannot be empty.");
+    return;
+  }
+  
+  const docRef = doc(collection(firestore, 'inventory'), item);
+  const docSnap = await getDoc(docRef);
+  
+  if (docSnap.exists()) {
+    const { quantity } = docSnap.data();
+    await setDoc(docRef, { quantity: quantity + 1 });
+  } else {
+    await setDoc(docRef, { quantity: 1 });
+  }
+  
+  await updateInventory();
+};
