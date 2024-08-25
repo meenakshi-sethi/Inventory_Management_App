@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Box, Stack, Typography, Button, Modal, TextField } from '@mui/material';
+import { Box, Stack, Typography, Button, Modal, TextField, IconButton } from '@mui/material';
+import { Add, Remove, Search, AddCircleOutline } from '@mui/icons-material';
 import { firestore } from '@/firebase';
 import {
   collection,
@@ -15,19 +16,29 @@ import {
   QuerySnapshot, DocumentData 
 } from 'firebase/firestore';
 
-const style = {
+const modalStyle = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
-  bgcolor: 'white',
-  border: '2px solid #000',
+  bgcolor: 'background.paper',
+  borderRadius: 3,
   boxShadow: 24,
   p: 4,
   display: 'flex',
   flexDirection: 'column',
   gap: 3,
+};
+
+const inventoryItemStyle = {
+  bgcolor: '#f7f9fc',
+  borderRadius: 3,
+  p: 2,
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
 };
 
 interface InventoryItem {
@@ -131,7 +142,8 @@ export default function Home() {
       justifyContent={'center'}
       flexDirection={'column'}
       alignItems={'center'}
-      gap={2}
+      bgcolor={'#e3f2fd'}
+      p={3}
     >
       <TextField
         id="search"
@@ -140,6 +152,14 @@ export default function Home() {
         fullWidth
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+        InputProps={{
+          endAdornment: (
+            <IconButton>
+              <Search />
+            </IconButton>
+          ),
+        }}
+        sx={{ mb: 3, maxWidth: '800px', bgcolor: 'white', borderRadius: 3, boxShadow: 2 }}
       />
 
       <Modal
@@ -148,7 +168,7 @@ export default function Home() {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style}>
+        <Box sx={modalStyle}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Add Item
           </Typography>
@@ -160,14 +180,18 @@ export default function Home() {
               fullWidth
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
+              sx={{ bgcolor: '#f7f9fc', borderRadius: 2 }}
             />
             <Button
-              variant="outlined"
+              variant="contained"
+              color="primary"
               onClick={() => {
                 addItem(itemName);
                 setItemName('');
                 handleClose();
               }}
+              startIcon={<AddCircleOutline />}
+              sx={{ borderRadius: 2 }}
             >
               Add
             </Button>
@@ -175,48 +199,58 @@ export default function Home() {
         </Box>
       </Modal>
 
-      <Button variant="contained" onClick={handleOpen}>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={handleOpen}
+        startIcon={<AddCircleOutline />}
+        sx={{ mb: 3, borderRadius: 3, boxShadow: 2 }}
+      >
         Add New Item
       </Button>
 
-      <Box border={'1px solid #333'}>
+      <Box
+        borderRadius={3}
+        p={3}
+        bgcolor={'#ffffff'}
+        boxShadow={3}
+        width="100%"
+        maxWidth="800px"
+      >
         <Box
-          width="800px"
+          width="100%"
           height="100px"
-          bgcolor={'#ADD8E6'}
+          bgcolor={'#1976d2'}
           display={'flex'}
           justifyContent={'center'}
           alignItems={'center'}
+          borderRadius={3}
+          mb={3}
+          boxShadow={2}
         >
-          <Typography variant={'h2'} color={'#333'} textAlign={'center'}>
+          <Typography variant={'h4'} color={'#ffffff'} textAlign={'center'}>
             Inventory Items
           </Typography>
         </Box>
-        <Stack width="800px" height="300px" spacing={2} overflow={'auto'}>
+        <Stack spacing={2}>
           {filteredInventory.map(({ name, quantity }) => (
             <Box
               key={name}
-              width="100%"
-              minHeight="150px"
-              display={'flex'}
-              justifyContent={'space-between'}
-              alignItems={'center'}
-              bgcolor={'#f0f0f0'}
-              paddingX={5}
+              sx={inventoryItemStyle}
             >
-              <Typography variant={'h3'} color={'#333'} textAlign={'center'}>
+              <Typography variant={'h5'} color={'#333'}>
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
-              <Typography variant={'h3'} color={'#333'} textAlign={'center'}>
+              <Typography variant={'h6'} color={'#666'}>
                 Quantity: {quantity}
               </Typography>
               <Stack direction="row" spacing={1}>
-                <Button variant="contained" onClick={() => addQuantity(name)}>
-                  +
-                </Button>
-                <Button variant="contained" onClick={() => removeItem(name)}>
-                  -
-                </Button>
+                <IconButton color="primary" onClick={() => addQuantity(name)}>
+                  <Add />
+                </IconButton>
+                <IconButton color="secondary" onClick={() => removeItem(name)}>
+                  <Remove />
+                </IconButton>
               </Stack>
             </Box>
           ))}
