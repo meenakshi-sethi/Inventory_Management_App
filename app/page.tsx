@@ -137,8 +137,6 @@ export default function Home() {
       alignItems={'center'}
       bgcolor={'#e3f2fd'}
       p={3}
-      position="relative"
-      pb={10} // Ensure there's space at the bottom for the sticky button
     >
       <Box
         borderRadius={3}
@@ -222,25 +220,17 @@ export default function Home() {
             </Grid>
           ))}
         </Stack>
-      </Box>
 
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={handleOpen}
-        startIcon={<AddCircleOutline />}
-        sx={{
-          position: 'fixed',
-          bottom: 16,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          borderRadius: 3,
-          boxShadow: 2,
-          zIndex: 1000, // Ensure it stays on top of other elements
-        }}
-      >
-        Add New Item
-      </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleOpen}
+          startIcon={<AddCircleOutline />}
+          sx={{ mt: 3, borderRadius: 3, boxShadow: 2, width: '100%' }}
+        >
+          Add New Item
+        </Button>
+      </Box>
 
       <Modal
         open={open}
