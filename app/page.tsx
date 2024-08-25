@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Box, Stack, Typography, Button, Modal, TextField, IconButton } from '@mui/material';
+import { Box, Stack, Typography, Button, Modal, TextField, IconButton, Grid } from '@mui/material';
 import { Add, Remove, Search, AddCircleOutline } from '@mui/icons-material';
 import { firestore } from '@/firebase';
 import {
@@ -137,31 +137,13 @@ export default function Home() {
   return (
     <Box
       width="100vw"
-      height="100vh"
+      minHeight="100vh"
       display={'flex'}
-      justifyContent={'center'}
       flexDirection={'column'}
       alignItems={'center'}
       bgcolor={'#e3f2fd'}
       p={3}
     >
-      <TextField
-        id="search"
-        label="Search Items"
-        variant="outlined"
-        fullWidth
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        InputProps={{
-          endAdornment: (
-            <IconButton>
-              <Search />
-            </IconButton>
-          ),
-        }}
-        sx={{ mb: 3, maxWidth: '800px', bgcolor: 'white', borderRadius: 3, boxShadow: 2 }}
-      />
-
       <Box
         borderRadius={3}
         p={3}
@@ -169,10 +151,11 @@ export default function Home() {
         boxShadow={3}
         width="100%"
         maxWidth="800px"
+        mb={3}
       >
         <Box
           width="100%"
-          height="60px"  // Reduced the height of the blue header
+          height="40px"  // Reduced the height of the blue header
           bgcolor={'#1976d2'}
           display={'flex'}
           justifyContent={'center'}
@@ -181,31 +164,66 @@ export default function Home() {
           mb={3}
           boxShadow={2}
         >
-          <Typography variant={'h5'} color={'#ffffff'} textAlign={'center'}>
+          <Typography variant={'subtitle1'} color={'#ffffff'} textAlign={'center'}>
             Inventory Items
           </Typography>
         </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            id="search"
+            label="Search Items"
+            variant="outlined"
+            fullWidth
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <IconButton>
+                  <Search />
+                </IconButton>
+              ),
+            }}
+            sx={{ bgcolor: '#f7f9fc', borderRadius: 3, boxShadow: 2 }}
+          />
+        </Box>
+
+        <Grid container spacing={2} sx={{ mb: 2, fontWeight: 'bold' }}>
+          <Grid item xs={6}>
+            <Typography variant="body1">Item</Typography>
+          </Grid>
+          <Grid item xs={3}>
+            <Typography variant="body1">Quantity</Typography>
+          </Grid>
+          <Grid item xs={3}>
+            <Typography variant="body1">Actions</Typography>
+          </Grid>
+        </Grid>
+
         <Stack spacing={2}>
           {filteredInventory.map(({ name, quantity }) => (
-            <Box
-              key={name}
-              sx={inventoryItemStyle}
-            >
-              <Typography variant={'h5'} color={'#333'}>
-                {name.charAt(0).toUpperCase() + name.slice(1)}
-              </Typography>
-              <Typography variant={'h6'} color={'#666'}>
-                Quantity: {quantity}
-              </Typography>
-              <Stack direction="row" spacing={1}>
-                <IconButton color="primary" onClick={() => addQuantity(name)}>
-                  <Add />
-                </IconButton>
-                <IconButton color="secondary" onClick={() => removeItem(name)}>
-                  <Remove />
-                </IconButton>
-              </Stack>
-            </Box>
+            <Grid container key={name} sx={inventoryItemStyle}>
+              <Grid item xs={6}>
+                <Typography variant={'body1'} color={'#333'}>
+                  {name.charAt(0).toUpperCase() + name.slice(1)}
+                </Typography>
+              </Grid>
+              <Grid item xs={3}>
+                <Typography variant={'body1'} color={'#666'}>
+                  {quantity}
+                </Typography>
+              </Grid>
+              <Grid item xs={3}>
+                <Stack direction="row" spacing={1}>
+                  <IconButton color="primary" onClick={() => addQuantity(name)}>
+                    <Add />
+                  </IconButton>
+                  <IconButton color="secondary" onClick={() => removeItem(name)}>
+                    <Remove />
+                  </IconButton>
+                </Stack>
+              </Grid>
+            </Grid>
           ))}
         </Stack>
       </Box>
@@ -215,10 +233,47 @@ export default function Home() {
         color="secondary"
         onClick={handleOpen}
         startIcon={<AddCircleOutline />}
-        sx={{ mt: 3, borderRadius: 3, boxShadow: 2 }}
+        sx={{ mt: 'auto', borderRadius: 3, boxShadow: 2 }}
       >
         Add New Item
       </Button>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Add Item
+          </Typography>
+          <Stack width="100%" direction={'row'} spacing={2}>
+            <TextField
+              id="outlined-basic"
+              label="Item"
+              variant="outlined"
+              fullWidth
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+              sx={{ bgcolor: '#f7f9fc', borderRadius: 2 }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                addItem(itemName);
+                setItemName('');
+                handleClose();
+              }}
+              startIcon={<AddCircleOutline />}
+              sx={{ borderRadius: 2 }}
+            >
+              Add
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
     </Box>
   );
 }
