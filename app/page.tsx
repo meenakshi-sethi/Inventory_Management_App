@@ -30,44 +30,41 @@ const style = {
   gap: 3,
 };
 
-export default function Home() {
-  const [inventory, setInventory] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [itemName, setItemName] = useState('');
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
 interface InventoryItem {
   name: string;
   quantity?: number; // Optional if it's not always present in your Firestore documents
   // Add other properties as needed
 }
 
-const item: InventoryItem = { name: doc.id, ...data };
+export default function Home() {
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [open, setOpen] = useState(false);
+  const [itemName, setItemName] = useState('');
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   useEffect(() => {
     updateInventory();
   }, []);
 
+  const updateInventory = async () => {
+    const snapshot: QuerySnapshot<DocumentData> = await getDocs(query(collection(firestore, 'inventory')));
+    const inventoryList: InventoryItem[] = [];
 
-const updateInventory = async () => {
-  const snapshot: QuerySnapshot<DocumentData> = await getDocs(query(collection(firestore, 'inventory')));
-  const inventoryList: InventoryItem[] = [];
+    snapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+      const data = doc.data();
+      const item: InventoryItem = {
+        name: doc.id, // `doc.id` is valid here
+        quantity: data.quantity ?? 0, // Handle the possibility of missing `quantity`
+        ...data,
+      };
+      inventoryList.push(item);
+    });
 
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    const item: InventoryItem = {
-      name: doc.id, // `doc.id` is valid here
-      quantity: data.quantity ?? 0, // Handle the possibility of missing `quantity`
-      ...data,
-    };
-    inventoryList.push(item);
-  });
+    setInventory(inventoryList);
+  };
 
-  setInventory(inventoryList);
-};
-
-  const addItem = async (item) => {
+  const addItem = async (item: string) => {
     if (!item.trim()) {
       console.error("Item name cannot be empty.");
       return;
@@ -76,13 +73,13 @@ const updateInventory = async () => {
     try {
       console.log("Adding item:", item);
       const docRef = doc(collection(firestore, 'inventory'), item);
-	  console.log("Here");
+      console.log("Here");
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        const { quantity } = docSnap.data();
-        console.log("Item exists. Updating quantity to:", quantity + 1);
-        await setDoc(docRef, { quantity: quantity + 1 });
+        const { quantity } = docSnap.data() as InventoryItem;
+        console.log("Item exists. Updating quantity to:", quantity! + 1);
+        await setDoc(docRef, { quantity: quantity! + 1 });
       } else {
         console.log("Item does not exist. Setting quantity to 1.");
         await setDoc(docRef, { quantity: 1 });
@@ -94,16 +91,16 @@ const updateInventory = async () => {
     }
   };
 
-  const removeItem = async (item) => {
+  const removeItem = async (item: string) => {
     try {
       const docRef = doc(collection(firestore, 'inventory'), item);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const { quantity } = docSnap.data();
+        const { quantity } = docSnap.data() as InventoryItem;
         if (quantity === 1) {
           await deleteDoc(docRef);
         } else {
-          await setDoc(docRef, { quantity: quantity - 1 });
+          await setDoc(docRef, { quantity: quantity! - 1 });
         }
       }
       await updateInventory();
@@ -198,4 +195,3 @@ const updateInventory = async () => {
     </Box>
   );
 }
-
